@@ -1,10 +1,11 @@
 #include <iostream>
-#include <cstddef>
-#include <cmath>
+#include <string>
 #include <utility>
 #include <stdexcept>
-#include <type_traits>
 #include <random>
+#include <cmath>
+#include <type_traits>
+#include <cstddef>
 
 template <typename T1, typename T2>
 std::ostream& operator<<(std::ostream& out, const std::pair<T1, T2>& p) {
@@ -257,9 +258,51 @@ bool are_all_elements_present(const T* first, std::size_t first_size,
 }
 
 int main() {
-    int arr1[] = {1, 2};
-    int arr2[] = {1, 2, 3};
-    bool res = are_all_elements_present(arr1, 2, arr2, 3);
-    std::cout << "Result: " << res << std::endl;
+    Set<int> set_a(5, 1, 10);
+    Set<int> set_b(4, 5, 15);
+    std::cout << "A: " << set_a << "\nB: " << set_b << std::endl;
+    std::cout << "Size A: " << set_a.size() << ", Empty: " << set_a.empty() << std::endl;
+    std::cout << "A + B: " << (set_a + set_b) << std::endl;
+    std::cout << "A - B: " << (set_a - set_b) << std::endl;
+    std::cout << "Intersection: " << set_a.intersection(set_b) << std::endl;
+    std::cout << "A == B: " << (set_a == set_b) << ", A != B: " << (set_a != set_b) << std::endl;
+
+    set_a += 99;
+    std::cout << "A += 99: " << set_a << std::endl;
+    set_a -= 99;
+    std::cout << "A -= 99: " << set_a << std::endl;
+    std::cout << "A + 100: " << (set_a + 100) << std::endl;
+    std::cout << "A - 100: " << (set_a - 100) << std::endl;
+    std::cout << "Contains 5 in A: " << set_a.contains(5) << std::endl;
+
+    if (!set_a.empty()) {
+        std::cout << "A[0]: " << set_a[0] << std::endl;
+    }
+    try {
+        (void)set_a[999];
+    } catch (const std::out_of_range& e) {
+        std::cout << "Caught expected exception: " << e.what() << std::endl;
+    }
+
+    float float_arr[] = {1.0000001f, 2.5f};
+    Set<float> float_set(float_arr, 2);
+    std::cout << "\nFloat set: " << float_set << std::endl;
+    std::cout << "Contains ~1.0000002f: " << float_set.contains(1.0000002f) << std::endl;
+
+    std::string str_arr[] = {"alpha", "beta", "gamma"};
+    Set<std::string> str_set(str_arr, 3);
+    std::cout << "String set: " << str_set << std::endl;
+
+    using PairType = std::pair<int, double>;
+    PairType pair_arr[] = {{1, 2.5}, {3, 4.5}};
+    Set<PairType> pair_set(pair_arr, 2);
+    std::cout << "Pair set: " << pair_set << std::endl;
+
+    int arr1[] = {2, 4, 2};
+    int arr2[] = {1, 2, 3, 4, 5};
+    int arr3[] = {1, 2, 3};
+    std::cout << "\nTask test 1: " << are_all_elements_present(arr1, 3, arr2, 5) << " (Expected: 1)" << std::endl;
+    std::cout << "Task test 2: " << are_all_elements_present(arr1, 3, arr3, 3) << " (Expected: 0)" << std::endl;
+
     return 0;
 }
