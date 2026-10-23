@@ -4,6 +4,7 @@
 #include <utility>
 #include <stdexcept>
 #include <type_traits>
+#include <random>
 
 template <typename T1, typename T2>
 std::ostream& operator<<(std::ostream& out, const std::pair<T1, T2>& p) {
@@ -65,6 +66,34 @@ public:
             for (std::size_t i = 0; i < count; ++i) {
                 *this += items[i];
             }
+        }
+    }
+
+    Set(std::size_t count, const T& min_val, const T& max_val) : Set() {
+        if constexpr (std::is_arithmetic_v<T>) {
+            if (count == 0) {
+                return;
+            }
+            reserve(count);
+            std::random_device rd;
+            std::mt19937 rng(rd());
+            std::size_t attempts = 0;
+            const std::size_t max_attempts = count * 1000;
+
+            while (size_ < count && attempts < max_attempts) {
+                if constexpr (std::is_integral_v<T>) {
+                    std::uniform_int_distribution<T> dist(min_val, max_val);
+                    *this += dist(rng);
+                } else {
+                    std::uniform_real_distribution<T> dist(min_val, max_val);
+                    *this += dist(rng);
+                }
+                ++attempts;
+            }
+        } else {
+            (void)count;
+            (void)min_val;
+            (void)max_val;
         }
     }
 
@@ -209,9 +238,28 @@ public:
     }
 };
 
+template <typename T>
+bool are_all_elements_present(const T* first, std::size_t first_size,
+                              const T* second, std::size_t second_size) {
+    if (first_size == 0) {
+        return true;
+    }
+    if (second_size == 0) {
+        return false;
+    }
+    Set<T> second_set(second, second_size);
+    for (std::size_t i = 0; i < first_size; ++i) {
+        if (!second_set.contains(first[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 int main() {
-    int arr[] = {1, 2, 3};
-    Set<int> s(arr, 3);
-    std::cout << s << std::endl;
+    int arr1[] = {1, 2};
+    int arr2[] = {1, 2, 3};
+    bool res = are_all_elements_present(arr1, 2, arr2, 3);
+    std::cout << "Result: " << res << std::endl;
     return 0;
 }
