@@ -1,8 +1,15 @@
+#include <iostream>
 #include <cstddef>
 #include <cmath>
 #include <utility>
 #include <stdexcept>
 #include <type_traits>
+
+template <typename T1, typename T2>
+std::ostream& operator<<(std::ostream& out, const std::pair<T1, T2>& p) {
+    out << "(" << p.first << ", " << p.second << ")";
+    return out;
+}
 
 template <typename T>
 class Set {
@@ -113,6 +120,12 @@ public:
         return *this;
     }
 
+    Set operator+(const T& value) const {
+        Set result = *this;
+        result += value;
+        return result;
+    }
+
     Set& operator-=(const T& value) {
         std::size_t index = find_index(value);
         if (index == size_) {
@@ -124,12 +137,81 @@ public:
         --size_;
         return *this;
     }
+
+    Set operator-(const T& value) const {
+        Set result = *this;
+        result -= value;
+        return result;
+    }
+
+    Set& operator+=(const Set& other) {
+        for (std::size_t i = 0; i < other.size_; ++i) {
+            *this += other.elements_[i];
+        }
+        return *this;
+    }
+
+    Set operator+(const Set& other) const {
+        Set result = *this;
+        result += other;
+        return result;
+    }
+
+    Set& operator-=(const Set& other) {
+        for (std::size_t i = 0; i < other.size_; ++i) {
+            *this -= other.elements_[i];
+        }
+        return *this;
+    }
+
+    Set operator-(const Set& other) const {
+        Set result = *this;
+        result -= other;
+        return result;
+    }
+
+    Set intersection(const Set& other) const {
+        Set result;
+        for (std::size_t i = 0; i < size_; ++i) {
+            if (other.contains(elements_[i])) {
+                result += elements_[i];
+            }
+        }
+        return result;
+    }
+
+    bool operator==(const Set& other) const {
+        if (size_ != other.size_) {
+            return false;
+        }
+        for (std::size_t i = 0; i < size_; ++i) {
+            if (!other.contains(elements_[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator!=(const Set& other) const {
+        return !(*this == other);
+    }
+
+    friend std::ostream& operator<<(std::ostream& out, const Set<T>& s) {
+        out << "{ ";
+        for (std::size_t i = 0; i < s.size_; ++i) {
+            out << s.elements_[i];
+            if (i + 1 < s.size_) {
+                out << ", ";
+            }
+        }
+        out << " }";
+        return out;
+    }
 };
 
 int main() {
-    int arr[] = {1, 2, 2, 3};
-    Set<int> s(arr, 4);
-    s += 4;
-    s -= 1;
+    int arr[] = {1, 2, 3};
+    Set<int> s(arr, 3);
+    std::cout << s << std::endl;
     return 0;
 }
