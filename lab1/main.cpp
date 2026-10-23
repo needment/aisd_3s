@@ -72,6 +72,14 @@ public:
 
     Set(std::size_t count, const T& min_val, const T& max_val) : Set() {
         if constexpr (std::is_arithmetic_v<T>) {
+            if constexpr (std::is_integral_v<T>) {
+                if (static_cast<std::size_t>(max_val - min_val + 1) < count) {
+                    throw std::invalid_argument("Range size is smaller than requested count");
+                }
+            }
+            if (min_val > max_val) {
+                throw std::invalid_argument("mininal value must be not greater maximum ");
+            }
             if (count == 0) {
                 return;
             }
@@ -119,7 +127,7 @@ public:
     ~Set() {
         delete[] elements_;
     }
-
+    //
     std::size_t size() const noexcept {
         return size_;
     }
@@ -131,14 +139,14 @@ public:
     bool contains(const T& value) const {
         return find_index(value) != size_;
     }
-
+    //
     const T& operator[](std::size_t index) const {
         if (index >= size_) {
             throw std::out_of_range("Index out of range");
         }
         return elements_[index];
     }
-
+    //
     Set& operator+=(const T& value) {
         if (contains(value)) {
             return *this;
@@ -155,7 +163,7 @@ public:
         result += value;
         return result;
     }
-
+    //
     Set& operator-=(const T& value) {
         std::size_t index = find_index(value);
         if (index == size_) {
@@ -173,7 +181,7 @@ public:
         result -= value;
         return result;
     }
-
+    //
     Set& operator+=(const Set& other) {
         for (std::size_t i = 0; i < other.size_; ++i) {
             *this += other.elements_[i];
@@ -209,7 +217,7 @@ public:
         }
         return result;
     }
-
+    //
     bool operator==(const Set& other) const {
         if (size_ != other.size_) {
             return false;
@@ -240,7 +248,7 @@ public:
 };
 
 template <typename T>
-bool are_all_elements_present(const T* first, std::size_t first_size,
+bool are_all_elements_present(const T* first , std::size_t first_size ,
                               const T* second, std::size_t second_size) {
     if (first_size == 0) {
         return true;
